@@ -1,11 +1,10 @@
 ## EX. NO:2 IMPLEMENTATION OF PLAYFAIR CIPHER
 
- 
+## Date:27-10-2026
+## Name:Siddharth CM
+## Register Number:212225040413
 
 ## AIM:
- 
-
- 
 
 To write a C program to implement the Playfair Substitution technique.
 
@@ -22,7 +21,6 @@ To encrypt a message, one would break the message into digrams (groups of 2 lett
 ![image](https://github.com/Hemamanigandan/EX-NO-2-/assets/149653568/e6858d4f-b122-42ba-acdb-db18ec2e9675)
 
  
-
 ## ALGORITHM:
 
 STEP-1: Read the plain text from the user.
@@ -36,8 +34,201 @@ STEP-5: Display the obtained cipher text.
 
 Program:
 
+```c
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
 
+char matrix[5][5];
 
+void createMatrix(char key[])
+{
+    int used[26] = {0};
+    int i, j, k = 0;
+    char ch;
 
+    used['J' - 'A'] = 1;
 
-Output:
+    for (i = 0; key[i] != '\0'; i++)
+    {
+        ch = toupper((unsigned char)key[i]);
+
+        if (ch >= 'A' && ch <= 'Z')
+        {
+            if (ch == 'J')
+                ch = 'I';
+
+            if (!used[ch - 'A'])
+            {
+                matrix[k / 5][k % 5] = ch;
+                used[ch - 'A'] = 1;
+                k++;
+            }
+        }
+    }
+
+    for (ch = 'A'; ch <= 'Z'; ch++)
+    {
+        if (!used[ch - 'A'])
+        {
+            matrix[k / 5][k % 5] = ch;
+            k++;
+        }
+    }
+}
+
+void prepareText(char text[], char result[])
+{
+    char temp[200];
+    int i, n = 0, k = 0;
+
+    for (i = 0; text[i] != '\0'; i++)
+    {
+        char ch = toupper((unsigned char)text[i]);
+
+        if (ch >= 'A' && ch <= 'Z')
+        {
+            if (ch == 'J')
+                ch = 'I';
+
+            temp[n++] = ch;
+        }
+    }
+
+    for (i = 0; i < n;)
+    {
+        char a = temp[i++];
+        char b;
+
+        if (i >= n || a == temp[i])
+        {
+            b = (a == 'X') ? 'Q' : 'X';
+        }
+        else
+        {
+            b = temp[i++];
+        }
+
+        result[k++] = a;
+        result[k++] = b;
+    }
+
+    result[k] = '\0';
+}
+
+void findPosition(char ch, int *row, int *col)
+{
+    int i, j;
+
+    if (ch == 'J')
+        ch = 'I';
+
+    for (i = 0; i < 5; i++)
+    {
+        for (j = 0; j < 5; j++)
+        {
+            if (matrix[i][j] == ch)
+            {
+                *row = i;
+                *col = j;
+                return;
+            }
+        }
+    }
+}
+
+void encrypt(char text[])
+{
+    int i, r1, c1, r2, c2;
+
+    for (i = 0; text[i] != '\0'; i += 2)
+    {
+        findPosition(text[i], &r1, &c1);
+        findPosition(text[i + 1], &r2, &c2);
+
+        if (r1 == r2)
+        {
+            text[i] = matrix[r1][(c1 + 1) % 5];
+            text[i + 1] = matrix[r2][(c2 + 1) % 5];
+        }
+        else if (c1 == c2)
+        {
+            text[i] = matrix[(r1 + 1) % 5][c1];
+            text[i + 1] = matrix[(r2 + 1) % 5][c2];
+        }
+        else
+        {
+            text[i] = matrix[r1][c2];
+            text[i + 1] = matrix[r2][c1];
+        }
+    }
+}
+
+void decrypt(char text[])
+{
+    int i, r1, c1, r2, c2;
+
+    for (i = 0; text[i] != '\0'; i += 2)
+    {
+        findPosition(text[i], &r1, &c1);
+        findPosition(text[i + 1], &r2, &c2);
+
+        if (r1 == r2)
+        {
+            text[i] = matrix[r1][(c1 + 4) % 5];
+            text[i + 1] = matrix[r2][(c2 + 4) % 5];
+        }
+        else if (c1 == c2)
+        {
+            text[i] = matrix[(r1 + 4) % 5][c1];
+            text[i + 1] = matrix[(r2 + 4) % 5][c2];
+        }
+        else
+        {
+            text[i] = matrix[r1][c2];
+            text[i + 1] = matrix[r2][c1];
+        }
+    }
+}
+
+int main()
+{
+    char key[100], PT[200], CT[200], DT[200];
+
+    printf("Enter the key: ");
+    fgets(key, sizeof(key), stdin);
+
+    printf("Enter the plaintext: ");
+    fgets(PT, sizeof(PT), stdin);
+
+    createMatrix(key);
+    prepareText(PT, CT);
+
+    printf("\nPlayfair Matrix:\n");
+
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < 5; j++)
+            printf("%c ", matrix[i][j]);
+
+        printf("\n");
+    }
+
+    encrypt(CT);
+
+    printf("\nEncrypted Text: %s\n", CT);
+
+    strcpy(DT, CT);
+    decrypt(DT);
+
+    printf("Decrypted Text: %s\n", DT);
+
+    return 0;
+}
+
+```
+
+## Output:
+
+<img width="1535" height="705" alt="image" src="https://github.com/user-attachments/assets/858322fc-5bf8-4169-b396-5b7aeaaae302" />
+
